@@ -1,17 +1,25 @@
-# Handwritten Digit Recognition Web App Dependencies
-# ================================================
+# Handwritten Digit Recognition Web App - Enhanced Version
+# =====================================================
+# Dependencies for the improved handwriting recognition system
+# with advanced image preprocessing using OpenCV
 
 # Core ML Framework
 torch>=2.0.0
 torchvision>=0.15.0
 
-# Data Processing
-numpy>=1.24.0
-pandas>=2.0.0
-Pillow>=9.5.0
+# Image Processing (Essential!)
+opencv-python>=4.8.0          # OpenCV - 用于高级图像预处理（二值化、形态学操作等）
+Pillow>=9.5.0                 # PIL - 图像处理基础库
 
-# Web Interface (Flask - Alternative to Gradio)
-flask>=3.0.0
+# Numerical Computing
+numpy>=1.24.0
+
+# Web Interface
+flask>=3.0.0                  # Flask Web框架
 
 # Optional: For Gradio deployment (uncomment if needed)
 # gradio>=4.12.0
+
+# Development/Testing (optional)
+# matplotlib>=3.7.0           # 可视化（调试用）
+# jupyter>=1.0.0              # Jupyter notebook支持
