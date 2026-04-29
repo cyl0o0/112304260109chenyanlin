@@ -1,0 +1,17 @@
+# Handwritten Digit Recognition Web App Dependencies
+# ================================================
+
+# Core ML Framework
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+Pillow>=9.5.0
+
+# Web Interface (Flask - Alternative to Gradio)
+flask>=3.0.0
+
+# Optional: For Gradio deployment (uncomment if needed)
+# gradio>=4.12.0

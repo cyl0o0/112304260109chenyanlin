@@ -1,0 +1,12 @@
+================================================================================CNN Hyperparameter Tuning Results================================================================================
+Config_E: Adam lr=0.001 bs=128 dp=0.4 fc=256  Val Acc= 99.12%
+Config_A: Adam lr=0.001 bs=128                Val Acc= 99.00%
+Config_D: Adam lr=0.0008 bs=128 dp=0.35       Val Acc= 98.95%
+Config_B: Adam lr=0.001 bs=256                Val Acc= 98.88%
+Config_C: SGD mom=0.9 lr=0.01 bs=128          Val Acc= 98.62%
+
+Best: Config_E: Adam lr=0.001 bs=128 dp=0.4 fc=256
+Val Acc: 99.12%
+
+Submission file: results/submission_cnn_hypertuned.csv
+================================================================================
