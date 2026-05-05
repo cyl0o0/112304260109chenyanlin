@@ -6,7 +6,7 @@
 - **学号**：112304260109
 - **班级**：数据1231
 
-> ⚠️ 注意：姓名和学号必须填写，否则本次实验提交无效。
+
 
 ***
 
@@ -38,8 +38,8 @@
 - **比赛名称**：Kaggle Digit Recognizer Competition
 - **比赛链接**：<https://www.kaggle.com/c/digit-recognizer>
 - **提交日期**：2026-04-29
-- **GitHub 仓库地址**：<https://github.com/Ylh2004-shuju/112304260120yanglinhao>
-- **GitHub README 地址**：<https://github.com/Ylh2004-shuju/112304260120yanglinhao/blob/main/README.md>
+- **GitHub 仓库地址**：https://github.com/cyl0o0/112304260109chenyanlin
+- **GitHub README 地址**：https://github.com/cyl0o0/112304260109chenyanlin/edit/main/README.md
 
 > 注意：GitHub 仓库首页或 README 页面中，必须能看到"姓名 + 学号"，否则无效。
 
@@ -49,9 +49,9 @@
 
 ### 最终提交结果
 
-- **Public Score**：0.985+
-- **Private Score**（如有）：待查看
-- **排名**（如能看到可填写）：\[待查看]
+- **Public Score**：0.98825
+- **Private Score**（如有）：
+- **排名**（如能看到可填写）：
 
 ### 提交文件说明
 
