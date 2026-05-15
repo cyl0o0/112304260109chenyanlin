@@ -387,8 +387,8 @@ results/submission_yolov8.csv
 
 ## 👨‍💻 联系方式
 
-- **学生姓名**: 杨淋皓
-- **学号**: 112304260120
+- **学生姓名**: 陈彦灵
+- **学号**: 112304260109
 - **班级**: 数据1231
 - **GitHub**: https://github.com/Ylh2004-shuju/112304260120yanglinhao
 
