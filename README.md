@@ -1,710 +1,405 @@
-# 机器学习实验：基于CNN的手写数字识别
+# 🚦 YOLOv8 交通标志检测系统
 
-## 1. 学生信息
+## 📋 项目概述
 
-- **姓名**：陈彦灵
-- **学号**：112304260109
-- **班级**：数据1231
+本项目使用 **YOLOv8 (You Only Look Once v8)** 深度学习模型完成**交通标志检测**任务。基于提供的交通标志数据集，训练目标检测模型，并在测试集上生成符合Kaggle提交格式的预测结果。
 
+### 任务类型
+- **任务**: 目标检测 (Object Detection)
+- **模型**: YOLOv8 (Ultralytics)
+- **数据集格式**: YOLO格式
+- **评估指标**: mAP@0.5
 
+---
 
-***
+## 👤 学生信息
 
-## 2. 实验概述
+- **姓名**: 陈彦灵
+- **学号**: 112304260109
+- **班级**: 数据1231
 
-本实验基于 MNIST 手写数字数据集，使用卷积神经网络（CNN）完成从模型训练到应用部署的完整流程，共分为三个阶段：
+---
 
-| 阶段  | 内容                                                                               | 要求         |
-| --- | -------------------------------------------------------------------------------- | ---------- |
-| 实验一 | **模型训练与超参数调优** — 搭建 CNN 模型，通过对比不同超参数组合，理解其对模型性能的影响，最终在 Kaggle 上达到 **0.98+** 的准确率 | **必做**     |
-| 实验二 | **模型封装与 Web 部署** — 将训练好的模型封装为 Web 应用，支持用户上传图片进行在线预测                              | **必做**     |
-| 实验三 | **交互式手写识别系统** — 在 Web 应用中加入手写画板，实现实时手写输入与识别                                      | **选做（加分）** |
+## 📊 数据集信息
 
-***
-
-## 3. 实验环境
-
-- Python 3.8+
-- PyTorch 2.0+
-- torchvision
-- matplotlib
-- Flask（实验二/三）
-- NumPy, Pillow
-
-***
-
-## 4. 比赛与提交信息
-
-- **比赛名称**：Kaggle Digit Recognizer Competition
-- **比赛链接**：<https://www.kaggle.com/c/digit-recognizer>
-- **提交日期**：2026-04-29
-- **GitHub 仓库地址**：https://github.com/cyl0o0/112304260109chenyanlin
-- **GitHub README 地址**：https://github.com/cyl0o0/112304260109chenyanlin/edit/main/README.md
-
-> 注意：GitHub 仓库首页或 README 页面中，必须能看到"姓名 + 学号"，否则无效。
-
-***
-
-## 5. Kaggle 成绩
-
-### 最终提交结果
-
-- **Public Score**：0.98825
-- **Private Score**（如有）：
-- **排名**（如能看到可填写）：
-
-### 提交文件说明
-
-| 文件名                             | 方法       | 预期准确率  | 推荐度   |
-| ------------------------------- | -------- | ------ | ----- |
-| submission\_cnn\_hypertuned.csv | CNN超参数调优 | 0.985+ | ⭐⭐⭐⭐⭐ |
-| submission\_cnn\_98plus.csv     | CNN优化版   | 0.985+ | ⭐⭐⭐⭐⭐ |
-| submission\_ensemble.csv        | 模型集成     | 0.988+ | ⭐⭐⭐⭐⭐ |
-
-***
-
-## 实验一：模型训练与超参数调优（必做）
-
-### 1.1 实验目标
-
-使用 CNN 在 MNIST 数据集上完成手写数字分类，通过调整超参数达到 **Kaggle 评分 ≥ 0.98**。
-
-### 1.2 数据集信息
-
-- **训练集**：42,000张28×28像素的手写数字图片
-- **测试集**：28,000张图片
-- **标签**：0-9的数字分类（10类）
-- **预处理**：归一化到\[0, 1]区间，reshape为(1, 28, 28)
-
-### 1.3 模型结构
-
-#### 基础CNN架构 (CNN1)
-
+### 数据集结构
 ```
-输入(1×28×28) → Conv1(32, 3×3) + ReLU + MaxPool → Conv2(64, 3×3) + ReLU + MaxPool → Flatten → FC(128) → 输出(10类)
+第4次实验数据及提交格式 (1)/
+├── train/                  # 训练集
+│   ├── images/            # 训练图片 (*.jpg, *.png)
+│   └── labels/            # 标注文件 (*.txt) - YOLO格式
+├── val/                    # 验证集
+│   ├── images/
+│   └── labels/
+├── test/images/           # 测试集（只有图片，无标签）
+├── data.yaml              # 数据集配置文件
+├── README.md              # 数据集说明
+├── baseline_infer.py      # 基线推理示例
+└── sample_submission.csv  # 提交格式示例
 ```
 
-#### 增强版CNN架构 (CNN2) - 最终采用
+### 类别信息（15类）
+| Class ID | 类别名称 | 说明 |
+|----------|---------|------|
+| 0 | Green Light | 绿灯 |
+| 1 | Red Light | 红灯 |
+| 2 | Speed Limit 10 | 限速10 |
+| 3 | Speed Limit 100 | 限速100 |
+| 4 | Speed Limit 110 | 限速110 |
+| 5 | Speed Limit 120 | 限速120 |
+| 6 | Speed Limit 20 | 限速20 |
+| 7 | Speed Limit 30 | 限速30 |
+| 8 | Speed Limit 40 | 限速40 |
+| 9 | Speed Limit 50 | 限速50 |
+| 10 | Speed Limit 60 | 限速60 |
+| 11 | Speed Limit 70 | 限速70 |
+| 12 | Speed Limit 80 | 限速80 |
+| 13 | Speed Limit 90 | 限速90 |
+| 14 | Stop | 停止标志 |
 
+### 标注格式（YOLO格式）
+每个标注文件对应一张图片，内容为：
 ```
-输入(1×28×28)
-├─ Conv2d(1→32, kernel=3×3, padding=1) + BatchNorm + ReLU
-├─ Conv2d(32→32, kernel=3×3, padding=1) + BatchNorm
-├─ MaxPool2d(2×2) + Dropout(0.25)
-├─ Conv2d(32→64, kernel=3×3, padding=1) + BatchNorm + ReLU
-├─ Conv2d(64→64, kernel=3×3, padding=1) + BatchNorm
-├─ MaxPool2d(2×2) + Dropout(0.25)
-├─ Flatten (64×7×7 = 3136)
-├─ Linear(3136→256) + BatchNorm + ReLU + Dropout(0.5)
-└─ Linear(256→10) → Output (10 classes: 0-9)
+class_id x_center y_center width height
 ```
+所有坐标为归一化值 [0, 1]
 
-**模型参数量**：\~500K
-
-### 1.4 超参数对比实验
-
-完成了以下 **4 组对比实验**：
-
-| 实验编号 | 优化器  | 学习率   | Batch Size | 数据增强 | Early Stopping |
-| ---- | ---- | ----- | ---------- | ---- | -------------- |
-| Exp1 | SGD  | 0.01  | 64         | 否    | 否              |
-| Exp2 | Adam | 0.001 | 64         | 否    | 否              |
-| Exp3 | Adam | 0.001 | 128        | 否    | 是              |
-| Exp4 | Adam | 0.001 | 64         | 是    | 是              |
-
-**数据增强方式**：
-
-- `transforms.RandomRotation(10)` - 随机旋转±10度
-- `transforms.RandomAffine(degrees=10, translate=(0.1, 0.1))` - 随机仿射变换
-
-**对比实验结果**：
-
-| 实验编号 | Train Acc | Val Acc   | Test Acc (预期) | 最低 Loss   | 收敛 Epoch |
-| ---- | --------- | --------- | ------------- | --------- | -------- |
-| Exp1 | 97.2%     | 96.5%     | 96.8%         | 0.098     | \~30     |
-| Exp2 | 99.1%     | 98.2%     | 98.3%         | 0.056     | \~20     |
-| Exp3 | 98.8%     | 98.4%     | 98.5%         | 0.048     | \~18     |
-| Exp4 | 98.5%     | **98.7%** | **98.8%**     | **0.042** | \~22     |
-
-### 1.5 最终提交模型配置
-
-在对比实验的基础上，选择了以下最优配置达到 Kaggle ≥ 0.98 的目标：
-
-| 配置项                       | 设置值                                                         |
-| ------------------------- | ----------------------------------------------------------- |
-| **模型架构**                  | 增强版CNN (CNN2)                                               |
-| **优化器**                   | Adam                                                        |
-| **学习率**                   | 0.001                                                       |
-| **Batch Size**            | 64                                                          |
-| **训练 Epoch 数**            | 30 (with early stopping)                                    |
-| **是否使用数据增强**              | ✅ 是                                                         |
-| **数据增强方式**                | RandomRotation(10) + RandomAffine(10, translate=(0.1, 0.1)) |
-| **是否使用 Early Stopping**   | ✅ 是 (patience=7)                                            |
-| **是否使用学习率调度器**            | ✅ 是 (ReduceLROnPlateau, factor=0.5, patience=3)             |
-| **Dropout**               | 0.25 (卷积层), 0.5 (全连接层)                                      |
-| **批归一化 (BatchNorm)**      | ✅ 启用                                                        |
-| **L2正则化 (weight\_decay)** | 1e-5                                                        |
-| **Kaggle Score**          | **0.985+** ✅                                                |
-
-### 1.6 Loss 曲线
-
-训练过程中的 Loss 曲线图已保存至：`results/loss_plot.png` 和 `results/loss_plot_early_stopping_final.png`
-
-![Loss曲线](./results/loss_plot_early_stopping_final.png)
-
-**曲线特征**：
-
-- 训练集Loss持续下降并趋于稳定
-- 验证集Loss在epoch 15-20左右开始收敛
-- Early Stopping在验证集Loss不再下降时触发
-- 学习率调度器在第15 epoch左右降低学习率，加速收敛
-
-### 1.7 分析问题
-
-**Q1：Adam 和 SGD 的收敛速度有何差异？从实验结果中你观察到了什么？**
-
-Adam优化器的收敛速度明显快于SGD。从实验结果看：
-
-- **SGD (Exp1)**：需要约30个epoch才能收敛，最终验证准确率约96.5%
-- **Adam (Exp2)**：仅需约20个epoch即可收敛，验证准确率达到98.2%
-
-原因分析：
-
-- Adam具有自适应学习率机制，能够根据梯度的一阶矩和二阶矩动态调整每个参数的学习率
-- SGD+Momentum虽然也能加速收敛，但需要手动调整momentum参数和学习率
-- Adam对稀疏梯度和非平稳目标函数有更好的适应性
-
-**Q2：学习率对训练稳定性有什么影响？**
-
-学习率是影响训练稳定性的关键超参数：
-
-- **过小 (lr < 0.0001)**：收敛极其缓慢，训练时间过长，可能陷入局部最优
-- **适中 (lr = 0.001)**：收敛快速且稳定，是Adam优化器的推荐起始值
-- **过大 (lr > 0.01)**：训练过程震荡严重，loss可能不收敛或发散
-
-本实验中：
-
-- SGD使用lr=0.01时表现尚可，但不如Adam稳定
-- Adam使用lr=0.001时表现出色，配合学习率调度器效果更佳
-- 使用ReduceLROnPlateau可以在训练后期自动降低学习率，提高稳定性
-
-**Q3：Batch Size 对模型泛化能力有什么影响？**
-
-Batch Size的选择直接影响模型的泛化能力：
-
-- **小Batch (bs=32)**：梯度噪声大，训练不稳定，但有助于跳出局部最优，泛化能力可能更好
-- **中等Batch (bs=64-128)**：平衡了训练速度和泛化能力，推荐使用
-- **大Batch (bs>256)**：内存占用大，训练速度快，但可能导致泛化能力下降
-
-从实验结果看：
-
-- **Exp2 (bs=64)**：Val Acc = 98.2%，训练稳定
-- **Exp3 (bs=128)**：Val Acc = 98.4%，略优于bs=64，收敛更快
-
-结论：Batch Size=64-128是MNIST数据集的最佳选择，既能保证训练效率，又能维持良好的泛化性能。
-
-**Q4：Early Stopping 是否有效防止了过拟合？**
-
-✅ **是的，Early Stopping有效防止了过拟合。**
-
-证据：
-
-- 从Loss曲线可以看出，训练集Loss持续下降，而验证集Loss在某个点后开始上升或停滞
-- 启用Early Stopping后，模型在验证集Loss不再改善时停止训练（patience=7）
-- 未使用Early Stopping的模型（Exp1, Exp2）出现过拟合迹象（Train Acc >> Val Acc）
-- 使用Early Stopping的模型（Exp3, Exp4）Train Acc和Val Acc差距较小
-
-Early Stopping的优势：
-
-- 自动选择最佳checkpoint，避免过拟合
-- 减少不必要的训练时间
-- 提高模型在新数据上的泛化能力
-
-**Q5：数据增强是否提升了模型的泛化能力？为什么？**
-
-✅ **是的，数据增强显著提升了模型的泛化能力。**
-
-证据对比：
-
-- **无数据增强 (Exp2)**：Val Acc = 98.2%, Test Acc ≈ 98.3%
-- **有数据增强 (Exp4)**：Val Acc = **98.7%**, Test Acc ≈ **98.8%** (+0.5%)
-
-提升原因：
-
-1. **增加数据多样性**：通过随机旋转、平移等操作，生成更多训练样本
-2. **模拟真实场景**：实际手写数字会有各种角度、位置的变化
-3. **防止过拟合**：更多样化的数据使模型学到更鲁棒的特征
-4. **提高鲁棒性**：模型对输入的小变化更加不敏感
-
-本实验使用的增强策略：
-
-- RandomRotation(10°)：模拟书写角度变化
-- RandomAffine(translate=(0.1, 0.1))：模拟位置偏移
-
-这些增强方法符合手写数字的实际变化规律，因此能有效提升泛化性能。
-
-### 1.8 其他可视化结果
-
-![混淆矩阵](./results/confusion_matrix.png)
-
-![样本展示](./results/sample_digits.png)
-
-### 1.9 提交清单
-
-- [x] 对比实验结果表格（1.4）✅
-- [x] 最终模型超参数配置（1.5）✅
-- [x] Loss 曲线图（1.6）✅
-- [x] 分析问题回答（1.7）✅
-- [x] Kaggle 预测结果 CSV ✅
-- [x] Kaggle Score 截图（≥ 0.98）✅
-
-***
-
-## 实验二：模型封装与 Web 部署（必做）
-
-### 2.1 实验目标
-
-将实验一训练好的模型封装为 Web 服务，实现上传图片 → 模型预测 → 输出结果的完整流程。
-
-### 2.2 技术方案
-
-由于Gradio安装遇到权限问题，改用 **Flask** 框架实现Web部署。
-
-**功能包括**：
-
-1. ✅ 用户上传一张手写数字图片
-2. ✅ 模型加载并进行预测
-3. ✅ 页面显示预测的数字类别及置信度
-
-### 2.3 项目结构
-
+示例 (`000000_jpg.rf.b11f308f16626f9f795a148029c46d10.txt`):
 ```
-web_deploy/
-├── app.py              # Flask Web 应用主程序
-├── model.pth           # 训练好的CNN模型权重
-├── requirements.txt    # Python依赖列表
-├── test_env.py         # 环境测试脚本
-└── README.md           # Web应用文档
+7 0.5336538461538461 0.3173076923076923 0.16947115384615385 0.3173076923076923
+```
+表示：类别7 (Speed Limit 30)，中心坐标(0.534, 0.317)，宽高(0.169, 0.317)
+
+---
+
+## 🔧 技术方案
+
+### 模型架构
+```
+YOLOv8 (You Only Look Once v8)
+├─ Backbone: CSPDarknet53
+├─ Neck: PANet (Path Aggregation Network)
+└─ Head: Decoupled Head (解耦头)
+
+版本选择: YOLOv8m (Medium)
+- 参数量: ~25.9M
+- 精度与速度的平衡点
+- 适合中等规模数据集
 ```
 
-### 2.4 核心功能实现
-
-#### 模型架构（Web应用使用）
-
+### 训练策略
 ```python
-class DigitCNN(nn.Module):
-    def __init__(self):
-        super(DigitCNN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(64 * 7 * 7, 128)
-        self.fc2 = nn.Linear(128, 10)
-        self.dropout = nn.Dropout(0.25)
+优化器: SGD with Momentum / AdamW
+学习率: 0.01 (初始) → 余弦退火调度
+Batch Size: 16
+Epochs: 100 (with Early Stopping, patience=20)
+图像尺寸: 640×640
 
-    def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 64 * 7 * 7)
-        x = F.relu(self.fc1(x))
-        x = self.dropout(x)
-        return self.fc2(x)
+数据增强:
+- Mosaic: 1.0 (概率)
+- MixUp: 0.0
+- 随机翻转: 左右50%
+- 颜色增强: HSV (H:0.015, S:0.7, V:0.4)
+- 几何变换: 旋转±10°, 平移10%, 缩放50%, 剪切2°
 ```
 
-#### API接口
+### 关键技术点
+1. **迁移学习**: 使用COCO预训练权重
+2. **多尺度训练**: 输入640×640
+3. **自动混合精度(AMP)**: 加速训练
+4. **Early Stopping**: 防止过拟合
+5. **测试时增强(TTA)**: 提升推理精度
 
-- **POST /predict**：接收图片数据，返回预测结果
-- **GET /**：返回Web页面
+---
 
-#### 图片预处理流程
+## 🚀 快速开始
 
-1. 将上传的图片转换为灰度图
-2. 调整尺寸为28×28像素
-3. 归一化到\[0, 1]区间
-4. 转换为PyTorch张量格式(1, 1, 28, 28)
-
-### 2.5 本地运行指南
-
+### 环境要求
 ```bash
-# 1. 进入web_deploy目录
-cd web_deploy
-
-# 2. 安装依赖
-pip install -r requirements.txt
-
-# 3. 运行Flask应用
-python app.py
-
-# 4. 浏览器访问
-# http://localhost:5000
+Python >= 3.8
+PyTorch >= 1.12
+ultralytics >= 8.0.0
+OpenCV-Python >= 4.5.0
 ```
 
-### 2.6 部署要求
+### 安装依赖
+```bash
+pip install ultralytics torch torchvision opencv-python
+```
 
-将项目部署到以下平台之一，生成可公网访问的链接：
+### 方法一：一键运行（推荐）
 
-- **HuggingFace Spaces**（推荐）
-- Render
-- Heroku
-- 其他云平台
+运行简化版训练脚本：
+```bash
+cd d:\机器学习实验3
+python train_yolo_simple.py
+```
 
-### 2.7 请填写你的提交信息
+这个脚本会自动：
+1. ✅ 下载预训练模型（yolov8m.pt）
+2. ✅ 训练模型（100 epochs）
+3. ✅ 在验证集上评估
+4. ✅ 在测试集上推理
+5. ✅ 生成 submission_yolov8.csv
 
-| 提交项         | 内容                                                        |
-| ----------- | --------------------------------------------------------- |
-| GitHub 仓库地址 | <https://github.com/Ylh2004-shuju/112304260120yanglinhao> |
-| 在线访问链接      | \[待部署]                                                    |
+### 方法二：分步执行
 
-**（请在此处粘贴：Web 页面截图 + 预测结果截图）**
+#### Step 1: 仅训练
+```bash
+python yolov8_traffic_sign_detection.py --mode train --epochs 100
+```
 
-### 2.8 提交清单
+#### Step 2: 仅推理（使用已有模型）
+```bash
+python yolov8_traffic_sign_detection.py --mode predict \
+    --model-path runs/detect/traffic_sign/weights/best.pt \
+    --conf 0.001
+```
 
-- [x] GitHub 仓库地址 ✅
-- [ ] 在线访问链接（可正常打开）⏳ 待部署
-- [ ] 页面截图与预测结果截图 ⏳ 待补充
+#### Step 3: 完整流程（训练+推理）
+```bash
+python yolov8_traffic_sign_detection.py --mode full
+```
 
-***
+### 方法三：使用快速启动脚本
+```bash
+python quick_start.py
+```
 
-## 实验三：交互式手写识别系统（选做，加分）
+---
 
-### 3.1 实验目标
-
-在实验二的基础上，将"上传图片"升级为**网页手写板输入**，实现实时手写识别。
-
-### 3.2 功能实现情况
-
-| 功能   | 状态    | 说明                        |
-| ---- | ----- | ------------------------- |
-| 手写输入 | ✅ 已实现 | 使用HTML5 Canvas，支持鼠标/触摸屏手写 |
-| 实时识别 | ✅ 已实现 | 提交手写内容后输出预测数字             |
-| 连续使用 | ✅ 已实现 | 支持清空画板、多次输入               |
-
-### 3.3 加分项实现情况
-
-| 加分项               | 状态    | 实现细节                   |
-| ----------------- | ----- | ---------------------- |
-| 显示 Top-3 预测结果及置信度 | ✅ 已实现 | 展示概率最高的3个数字及其置信度百分比    |
-| 显示概率分布条形图         | ✅ 已实现 | 使用Chart.js绘制10个类别的概率分布 |
-| 历史识别记录展示          | ✅ 已实现 | 表格形式记录所有历史预测结果         |
-
-### 3.4 技术实现亮点
-
-#### 手写画板功能
-
-- **HTML5 Canvas API**：实现流畅的手写体验
-- **触摸屏支持**：兼容移动设备触摸操作
-- **笔触自定义**：可调节线条粗细和颜色
-- **撤销功能**：支持撤销上一步操作
-
-#### 预测结果展示
-
-- **主要结果显示**：大字号显示预测数字和置信度
-- **Top-3预测列表**：显示最可能的3个候选数字
-- **概率分布图**：直观展示模型对所有数字的置信度
-- **历史记录表格**：记录时间、图像、预测结果、置信度
-
-### 3.5 请填写你的提交信息
-
-| 提交项      | 内容                           |
-| -------- | ---------------------------- |
-| 在线访问链接   | \[待部署]                       |
-| 实现了哪些加分项 | ✅ Top-3预测 + ✅ 概率分布图 + ✅ 历史记录 |
-
-**（请在此处粘贴：手写输入截图 + 识别结果截图）**
-
-### 3.6 提交清单
-
-- [ ] 在线系统链接 ⏳ 待部署
-- [ ] 手写输入与识别结果截图 ⏳ 待补充
-
-***
-
-## 6. 项目文件结构
+## 📁 项目文件说明
 
 ```
 机器学习实验3/
+├── yolov8_traffic_sign_detection.py   # 主程序（完整版）
+├── train_yolo_simple.py               # 简化版训练脚本 ⭐推荐使用
+├── quick_start.py                     # 一键启动脚本
 │
-├── .gitignore                  # Git忽略文件配置（排除大数据集和模型权重）
-├── README.md                   # 本文件 - 项目主文档
+├── 第4次实验数据及提交格式 (1)/        # 数据集目录
+│   ├── data.yaml                      # 数据配置
+│   ├── train/                         # 训练集
+│   ├── val/                           # 验证集
+│   └── test/images/                   # 测试图片
 │
-├── CNN手写数字识别实验模板.md    # 实验要求模板
-├── CNN模型训练与超参数调优分析.md  # 详细技术分析报告
-├── KAGGLE_FINAL_GUIDE.md       # Kaggle提交指南
-├── KAGGLE_SUBMISSION_GUIDE.md  # Kaggle提交详细教程
-├── GIT使用指南.md              # Git操作教程
+├── results/                           # 输出结果
+│   └── submission_yolov8.csv          # Kaggle提交文件 ⭐
 │
-├── digit-recognizer/           # 📁 Kaggle数据集（未上传GitHub）
-│   ├── train.csv               # 训练集（42,000条）
-│   ├── test.csv                # 测试集（28,000条）
-│   └── sample_submission.csv   # 提交模板
-│
-├── web_deploy/                 # 🌐 Web部署应用
-│   ├── app.py                  # Flask主程序（含手写板+上传功能）
-│   ├── model.pth               # 训练好的CNN模型权重（~2MB）
-│   ├── requirements.txt        # Python依赖
-│   ├── test_env.py             # 环境测试脚本
-│   └── README.md               # Web应用独立文档
-│
-├── results/                    # 📊 实验结果
-│   ├── best_cnn.pth            # 最佳CNN模型权重
-│   ├── best_cnn_hypertuned.pth # 超参数调优后的最佳模型
-│   ├── cnn_tuning_results.txt  # 超参数调优详细日志
-│   ├── confusion_matrix.png    # 混淆矩阵热力图
-│   ├── loss_plot.png           # Loss曲线图
-│   ├── loss_plot_early_stopping_final.png  # 含Early Stopping的Loss曲线
-│   ├── sample_digits.png       # 样本数字展示
-│   ├── 实验记录.md             # 实验过程记录
-│   └── submission_*.csv        # 多个Kaggle提交文件
-│       ├── submission_cnn_hypertuned.csv  # ⭐ 推荐：超参数调优版本
-│       ├── submission_cnn_98plus.csv      # CNN优化版
-│       ├── submission_ensemble.csv        # 模型集成版本
-│       └── ...其他版本
-│
-└── report/                     # 📝 实验报告
-    ├── readme_机器学习实验2模板.md
-    └── 实验报告模板.md
+└── runs/detect/traffic_sign/          # 训练结果
+    ├── weights/
+    │   ├── best.pt                    # 最佳模型权重 ⭐
+    │   └── last.pt                    # 最后一个epoch的权重
+    ├── args.yaml                      # 训练参数
+    ├── results.csv                    # 训练指标记录
+    ├── confusion_matrix.png          # 混淆矩阵
+    ├── results.png                   # 训练曲线图
+    └── val_batch*_pred.jpg           # 预测可视化
 ```
 
-***
+---
 
-## 7. 实验流程总结
+## 📈 预期性能指标
 
-### 完整实验流程图
+基于YOLOv8m在类似交通标志数据集上的表现：
 
-```
-1. 数据准备阶段
-   └─ 下载Kaggle MNIST数据集
-   └─ 数据预处理（归一化、reshape）
+| 指标 | 预期值 | 说明 |
+|------|--------|------|
+| **mAP@0.5** | 0.85 - 0.95 | 主要评估指标 |
+| **mAP@0.5:0.95** | 0.65 - 0.80 | 严格mAP |
+| **Precision** | 0.85 - 0.92 | 精确率 |
+| **Recall** | 0.82 - 0.90 | 召回率 |
+| **F1-Score** | 0.85 - 0.90 | F1分数 |
+| **推理速度** | ~15 ms/image | GPU推理 |
 
-2. 模型训练阶段（实验一）
-   ├─ 设计CNN网络架构
-   ├─ 进行4组超参数对比实验
-   │   ├─ Exp1: SGD优化器基线
-   │   ├─ Exp2: Adam优化器
-   │   ├─ Exp3: Adam + Early Stopping
-   │   └─ Exp4: Adam + Data Augmentation + Early Stopping
-   ├─ 分析实验结果，绘制Loss曲线
-   ├─ 选择最优超参数组合
-   └─ 训练最终模型，生成Kaggle提交文件
+> 注：实际性能取决于数据集质量和超参数调优
 
-3. Web部署阶段（实验二）
-   ├─ 封装训练好的模型
-   ├─ 开发Flask Web应用
-   │   ├─ 实现图片上传接口
-   │   ├─ 实现模型预测API
-   │   └─ 设计响应式前端界面
-   └─ 本地测试与调试
+---
 
-4. 交互式系统开发（实验三）
-   ├─ 集成HTML5 Canvas手写板
-   ├─ 实现实时识别功能
-   ├─ 添加Top-3预测和概率分布展示
-   ├─ 添加历史记录功能
-   └─ 用户体验优化
+## 📝 提交格式说明
 
-5. 提交与部署
-   ├─ 提交Kaggle并获得≥0.98分数 ✅
-   ├─ 整理项目代码和文档
-   ├─ 上传到GitHub仓库 ✅
-   └─ （可选）部署到云平台
+### CSV文件格式
+提交文件 `submission_yolov8.csv` 必须包含以下列：
+
+| 列名 | 类型 | 说明 | 示例 |
+|------|------|------|------|
+| image_id | string | 图片文件名 | "000003_jpg.rf.8511b9c219dbf9799a6d58900b15917d.jpg" |
+| class_id | int | 类别ID (0-14) | 7 |
+| x_center | float | 归一化中心X坐标 [0,1] | 0.534 |
+| y_center | float | 归一化中心Y坐标 [0,1] | 0.317 |
+| width | float | 归一化宽度 [0,1] | 0.169 |
+| height | float | 归一化高度 [0,1] | 0.317 |
+| confidence | float | 置信度 [0,1] | 0.9876 |
+
+### 示例CSV内容
+```csv
+image_id,class_id,x_center,y_center,width,height,confidence
+000003_jpg.rf.xxx.jpg,7,0.534,0.317,0.169,0.317,0.9876
+000006_jpg.rf.xxx.jpg,9,0.456,0.523,0.145,0.198,0.9543
+...
 ```
 
-***
+### 重要提示
+- 所有坐标必须是**归一化值**（范围[0, 1]）
+- 使用**YOLO格式** (x_center, y_center, width, height)
+- 置信度阈值建议设为 **0.001**（保留所有预测）
+- 每张图片可以有**多个检测结果**
 
-## 8. 关键技术要点总结
+---
 
-### 8.1 CNN模型设计原则
+## 🔍 结果分析
 
-- **卷积层数量**：2-3组卷积层适合手写数字识别任务
-- **滤波器数量**：逐步增加（32→64→128），提取层次化特征
-- **池化层**：MaxPool2d(2,2)降维，减少计算量
-- **正则化**：Dropout + BatchNorm防止过拟合
-- **激活函数**：ReLU（计算高效，缓解梯度消失）
+### 训练监控
+训练过程中会生成以下可视化：
 
-### 8.2 超参数调优经验
+1. **results.png**: 训练曲线
+   - Loss变化（train/val box loss, cls loss, dfl loss）
+   - 精度变化（precision, recall, mAP@0.5, mAP@0.5-0.95）
 
-- **学习率**：Adam推荐0.001，配合调度器使用
-- **Batch Size**：64-128平衡效率和稳定性
-- **Epoch数**：20-30足够，配合Early Stopping
-- **数据增强**：简单有效的正则化手段
-- **优化器选择**：CNN优先使用Adam
+2. **confusion_matrix.png**: 混淆矩阵
+   - 展示各类别的分类情况
+   - 识别混淆的类别对
 
-### 8.3 Web部署注意事项
+3. **val_batch*_pred.jpg**: 预测可视化
+   - 展示模型在验证集上的预测效果
+   - 不同batch的可视化结果
 
-- **模型加载**：使用`torch.load()`加载预训练权重
-- **图片预处理**：必须与训练时保持一致（28×28灰度图）
-- **响应时间**：单张图片推理<10ms，满足实时性要求
-- **前端交互**：Canvas绑定鼠标/触摸事件实现手写
+### 性能优化建议
 
-***
+如果需要进一步提升性能：
 
-## 9. 性能指标汇总
+1. **增加训练轮数**
+   ```bash
+   python train_yolo_simple.py  # 修改epochs=150或200
+   ```
 
-| 模型/方法          | 参数量        | 训练时间   | Val Acc   | Kaggle Score | 特点                |
-| -------------- | ---------- | ------ | --------- | ------------ | ----------------- |
-| Random Forest  | -          | 快      | 96.5%     | 0.965        | 基线模型              |
-| Extra Trees    | -          | 中      | 97.2%     | 0.972        | 集成学习              |
-| 简单DNN          | \~500K     | 中      | 97.5%     | 0.975        | 全连接网络             |
-| 基础CNN          | \~500K     | 中长     | 98.2%     | 0.978        | 卷积神经网络            |
-| **增强CNN（本项目）** | **\~500K** | **中长** | **98.7%** | **0.985+**   | **BN+Dropout+DA** |
-| **模型集成**       | **-**      | **长**  | **99.0%** | **0.988+**   | **多模型投票**         |
+2. **使用更大的模型**
+   ```python
+   model = YOLO('yolov8l.pt')  # 或 'yolov8x.pt'
+   ```
 
-***
+3. **调整图像尺寸**
+   ```python
+   imgsz=800  # 或 1024（需要更多显存）
+   ```
 
-## 10. 评分标准自查
+4. **启用更多数据增强**
+   ```python
+   mixup=0.1,
+   copy_paste=0.1,
+   ```
 
-| 项目               | 分值              | 完成情况       | 自评得分        |
-| ---------------- | --------------- | ---------- | ----------- |
-| **实验一：模型训练与调优**  | 60分             | <br />     | <br />      |
-| ├─ 对比实验完整性（4组）   | 15分             | ✅ 完成       | 15/15       |
-| ├─ Kaggle ≥ 0.98 | 15分             | ✅ 达到0.985+ | 15/15       |
-| ├─ Loss曲线图       | 10分             | ✅ 已提供      | 10/10       |
-| ├─ 分析问题质量（5题）    | 15分             | ✅ 详细回答     | 15/15       |
-| └─ 代码规范性         | 5分              | ✅ 规范       | 5/5         |
-| **实验二：Web部署**    | 30分             | <br />     | <br />      |
-| ├─ 功能完整性         | 15分             | ✅ 完成       | 15/15       |
-| ├─ 可正常访问         | 10分             | ⏳ 本地可用     | 10/10\*     |
-| └─ 代码规范          | 5分              | ✅ 规范       | 5/5         |
-| **实验三：交互系统（加分）** | 10分             | <br />     | <br />      |
-| ├─ 手写输入功能        | 5分              | ✅ 完成       | 5/5         |
-| ├─ 加分项实现         | 5分              | ✅ 3项全完成    | 5/5         |
-| **总计**           | **100分（+10加分）** | <br />     | **95+/110** |
+5. **测试时增强(TTA)**
+   ```python
+   results = model.predict(..., augment=True)
+   ```
 
-> \*注：在线部署部分待完成，本地运行完全正常
+---
 
-***
+## ❓ 常见问题
 
-## 11. 快速开始指南
+### Q1: 显存不足怎么办？
+**A**: 减小batch size或image size
+```python
+batch=8,      # 从16改为8
+imgsz=480,    # 从640改为480
+```
 
-### 环境安装
-
+### Q2: 如何使用GPU？
+**A**: Ultralytics会自动检测并使用GPU。确保安装了CUDA版本的PyTorch。
 ```bash
-# 创建虚拟环境（推荐）
-python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
-
-# 安装依赖
-pip install torch torchvision numpy pandas pillow flask matplotlib
+# 检查CUDA是否可用
+python -c "import torch; print(torch.cuda.is_available())"
 ```
 
-### 运行实验一：模型训练
+### Q3: 训练太慢？
+**A**:
+- 使用更小的模型（yolov8n 或 yolov8s）
+- 减少epochs
+- 启用cache=True（已默认开启）
+- 增加workers数量
 
+### Q4: 如何查看中间结果？
+**A**: 训练过程中的结果保存在：
+```
+runs/detect/traffic_sign/
+```
+
+### Q5: 如何继续训练？
+**A**: 使用last.pt恢复训练
+```python
+model = YOLO('runs/detect/traffic_sign/weights/last.pt')
+model.train(resume=True)
+```
+
+---
+
+## 🎯 Kaggle提交流程
+
+### Step 1: 生成提交文件
 ```bash
-# 进入项目根目录
-cd d:\机器学习实验3
-
-# 下载数据集到 digit-recognizer/ 目录
-# 运行训练脚本（根据实际情况调整）
-python code/cnn_hyperparameter_tuning.py
+python train_yolo_simple.py
 ```
 
-### 运行实验二&三：Web应用
-
-```bash
-# 进入web目录
-cd web_deploy
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 运行Flask应用
-python app.py
-
-# 浏览器打开 http://localhost:5000
+### Step 2: 定位提交文件
+```
+results/submission_yolov8.csv
 ```
 
-### 提交到Kaggle
+### Step 3: 提交到Kaggle
+1. 访问比赛页面
+2. 点击 "Submit Predictions"
+3. 上传 `submission_yolov8.csv`
+4. 查看评分结果
 
-```bash
-# 选择最佳的submission文件
-results/submission_cnn_hypertuned.csv  # 推荐
+### Step 4: 优化迭代
+根据Kaggle反馈调整参数：
+- 如果mAP低 → 增加训练轮数、调整学习率
+- 如果某些类别识别差 → 检查数据质量、增加该类别样本
 
-# 访问 https://www.kaggle.com/c/digit-recognizer
-# 点击 "Submit Predictions"
-# 上传CSV文件
-```
+---
 
-***
+## 📚 参考资源
 
-## 12. 常见问题解答 (FAQ)
+### 官方文档
+- [Ultralytics YOLOv8 文档](https://docs.ultralytics.com/)
+- [YOLOv8 GitHub](https://github.com/ultralytics/ultralytics)
+- [Ultralytics HUB](https://hub.ultralytics.com/)
 
-**Q1: 训练显存不足怎么办？**
-A: 减小Batch Size（如从64改为32），或使用更小的模型。
+### 教程资源
+- [YOLOv8 自定义数据训练教程](https://docs.ultralytics.com/modes/train/)
+- [YOLOv8 推理与预测](https://docs.ultralytics.com/modes/predict/)
+- [最佳实践指南](https://docs.ultralytics.com/usage/best_practices/)
 
-**Q2: Kaggle分数如何进一步提高？**
-A: 尝试模型集成（多个模型投票）、更强的数据增强、或使用更大的网络（如ResNet）。
+### 相关论文
+- **YOLOv8**: Real-Time Object Detection with Ultralytics (2023)
+- **YOLOX**: Exceeding YOLO Series in 2021 (2021)
+- **YOLOv5**: You Only Look Once: Unified, Real-Time Object Detection (2020)
 
-**Q3: Web应用无法启动？**
-A: 检查Flask和依赖是否正确安装，确保model.pth文件存在且路径正确。
+---
 
-**Q4: 如何重新训练模型？**
-A: 删除results/下的.pth文件，重新运行训练脚本即可。
+## 📌 版本历史
 
-**Q5: 手写识别准确率低？**
-A: 确保手写的数字清晰、居中、大小适中；检查图片预处理是否正确。
+| 版本 | 日期 | 更新内容 |
+|------|------|---------|
+| v1.0 | 2026-04-29 | 初始版本：完整的YOLOv8训练与推理系统 |
 
-***
+---
 
-## 13. 参考资源
+## 👨‍💻 联系方式
 
-### 数据集
+- **学生姓名**: 陈彦灵
+- **学号**: 112304260109
+- **班级**: 数据1231
+- **GitHub**: https://github.com/cyl0o0/112304260109chenyanlin
 
-- [Kaggle Digit Recognizer Competition](https://www.kaggle.com/c/digit-recognizer)
-- [MNIST Official Website](http://yann.lecun.com/exdb/mnist/)
+---
 
-### 框架文档
-
-- [PyTorch Documentation](https://pytorch.org/docs/)
-- [Flask Documentation](https://flask.palletsprojects.com/)
-- [Matplotlib Documentation](https://matplotlib.org/stable/contents.html)
-
-### 学习资源
-
-- [CS231n: Convolutional Neural Networks for Visual Recognition](http://cs231n.stanford.edu/)
-- [Deep Learning Specialization (Coursera)](https://www.coursera.org/specializations/deep-learning)
-
-***
-
-## 14. 版本历史
-
-| 版本     | 日期         | 更新内容                   |
-| ------ | ---------- | ---------------------- |
-| v1.0   | 2026-04-22 | 初始版本：IMDB情感分析实验        |
-| v2.0   | 2026-04-29 | **重大更新**：完整的手写数字识别实验   |
-| <br /> | <br />     | - 新增CNN模型训练与超参数调优（实验一） |
-| <br /> | <br />     | - 新增Flask Web部署应用（实验二） |
-| <br /> | <br />     | - 新增交互式手写识别系统（实验三）     |
-| <br /> | <br />     | - 完成4组超参数对比实验          |
-| <br /> | <br />     | - Kaggle分数达到0.985+     |
-| <br /> | <br />     | - 完整的实验文档和分析报告         |
-
-***
-
-## 15. 致谢
-
-- **数据来源**：Kaggle Digit Recognizer Competition
-- **深度学习框架**：PyTorch
-- **Web框架**：Flask
-- **课程指导**：机器学习课程教师团队
-
-***
-
-## 16. 许可证
+## 📄 许可证
 
 本项目仅供学习和研究使用。
 
-***
-
-## 📧 联系方式
-
-- **学生姓名**：陈彦灵
-- **学号**：112304260109
-- **班级**：数据1231
-- **GitHub**：<https://github.com/cyl0o0/112304260109chenyanlin>
-
-***
+---
 
 **⭐ 如果这个项目对你有帮助，欢迎给个Star！**
 
-**最后更新时间**：2026年4月29日
+**最后更新时间**: 2026年4月29日
