@@ -1,4 +1,4 @@
-# 🚦 YOLOv8 交通标志检测系统 - 完整文档
+# 🚦 YOLOv8 交通标志检测系统
 
 ## 📋 项目概述
 
@@ -390,7 +390,7 @@ results/submission_yolov8.csv
 - **学生姓名**: 陈彦灵
 - **学号**: 112304260109
 - **班级**: 数据1231
-- **GitHub**: https://github.com/Ylh2004-shuju/112304260120yanglinhao
+- **GitHub**: https://github.com/Ylh2004-shuju/112304260109chenyanlin
 
 ---
 
