@@ -29,7 +29,9 @@ class DigitCNN(nn.Module):
         return self.fc2(x)
 
 model = DigitCNN()
-model.load_state_dict(torch.load('model.pth', map_location='cpu', weights_only=True))
+model_path = r'd:\机器学习实验3\results\best_cnn_hypertuned.pth'
+print(f"Loading model from: {model_path}")
+model.load_state_dict(torch.load(model_path, map_location='cpu', weights_only=True))
 model.eval()
 print("Model loaded successfully!")
 

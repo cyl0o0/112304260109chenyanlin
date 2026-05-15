@@ -1,0 +1,27 @@
+=== How to Upload to GitHub ===
+
+Step 1: Double-click on "upload_to_github.bat"
+   - This will prepare everything for upload
+   - It copies the YOLO documentation as README.md
+   - It commits all the files
+
+Step 2: After the batch file finishes, open Command Prompt (CMD)
+   - Press Win+R, type "cmd", press Enter
+   - Go to the project directory:
+     cd /d d:\机器学习实验3
+
+Step 3: Push to GitHub
+   git push -u origin main
+
+=== If submission_final.csv is missing ===
+If you need to generate the submission file first:
+1. Make sure you have the dataset: "第4次实验数据及提交格式 (1)/"
+2. Run: python generate_final_csv.py
+3. Then run upload_to_github.bat again
+
+=== What Will Be Uploaded ===
+- generate_final_csv.py
+- YOLOV8_交通标志检测文档.md (as README.md)
+- submission_final.csv (once generated)
+- exp.torchscript (model)
+- All other project files
